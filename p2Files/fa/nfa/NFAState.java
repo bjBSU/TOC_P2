@@ -2,7 +2,6 @@ package fa.nfa;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 
 import fa.State;
 
@@ -53,7 +52,7 @@ public class NFAState extends State {
      * @param symbol The symbol to retrieve transitions
      * @return A set of states (empty if none exist)
      */
-    public Set<NFAState> getTransitions(char symbol) {
+    public HashSet<NFAState> getTransitions(char symbol) {
         HashSet<NFAState> temp = transitions.get(symbol);
         if (temp == null) {
             return new HashSet<>();
