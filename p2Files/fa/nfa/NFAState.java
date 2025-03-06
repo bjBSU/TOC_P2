@@ -2,6 +2,8 @@ package fa.nfa;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
+
 import fa.State;
 
 /**
@@ -31,7 +33,75 @@ public class NFAState extends State {
         isStart = false;
     }
 
+    /**
+     * Adds a transition on the given symbol to the target state
+     * @param symbol The symbol triggering the transition
+     * @param toState The target state
+     * @return true if the transition was added, false if it already existed
+     */
+    public boolean addTransition(char symbol, NFAState toState) {
+        HashSet<NFAState> set = transitions.get(symbol); //Get Transitions on symbol for this State
+        if (set == null) {
+            set = new HashSet<>();
+            transitions.put(symbol, set); // If none make and add this set to symbol
+        }
+        return set.add(toState);
+    }
+
+    /**
+     * Returns the set of transitions on the given symbol
+     * @param symbol The symbol to retrieve transitions
+     * @return A set of states (empty if none exist)
+     */
+    public Set<NFAState> getTransitions(char symbol) {
+        HashSet<NFAState> temp = transitions.get(symbol);
+        if (temp == null) {
+            return new HashSet<>();
+        }
+        return temp;
+    }
+
+    /**
+     * Returns all transitions from this state
+     * @return A map of transitions
+     */
+    public HashMap<Character, HashSet<NFAState>> getAllTransitions() {
+        return transitions;
+    }
+
+    /**
+     * Sets if an accepting state
+     * @param isFinal true if this is a final state
+     */
+    public void setFinal(boolean isFinal) {
+        this.isFinal = isFinal;
+    }
     
+    /**
+     * Checks if this state is final
+     * @return true if it is final
+     */
+    public boolean isFinal() {
+        return isFinal;
+    }
+    
+    /**
+     * Sets if the start state
+     * @param isStart true if this is the start state
+     */
+    public void setStart(boolean isStart) {
+        this.isStart = isStart;
+    }
+    
+    /**
+     * Checks if this state is the start
+     * @return true if it is the start state
+     */
+    public boolean isStart() {
+        return isStart;
+    }
+
+
     
 }
 
