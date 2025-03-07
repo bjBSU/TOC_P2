@@ -100,6 +100,16 @@ public class NFAState extends State {
         return isStart;
     }
 
+    @Override
+    public String getName(){
+        return super.getName();
+    }
+
+    @Override
+    public String toString(){
+    }
+
+    
 
     
 }
