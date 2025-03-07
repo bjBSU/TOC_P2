@@ -9,38 +9,80 @@ import fa.State;
  * NFAInterface class and handles all functions of an NFA and
  * its mapping.
  * 
- * @author Ashley Day Brooke Matthews
+ * @author Ashley Day & Brooke Matthews
  */
 public class NFA implements NFAInterface{
+    LinkedHashSet<Character> sigma;
+    LinkedHashSet<DFAState> states;
+    String startState;
+    LinkedHashSet<DFAState> finalStates;
 
+    /**
+    *Constructor
+    */
+    public NFA() {
+        sigma = new LinkedHashSet<>();
+        states = new LinkedHashSet<>();
+        startState = "";
+        finalStates = new LinkedHashSet<>();
+    }
+    
     @Override
     public boolean addState(String name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addState'");
+        for (NFAState state : states) {
+            if (state.getName().equals(name)) {
+                return false;
+            }
+        }
+
+
+        return states.add(new DFAState(name));
     }
 
     @Override
     public boolean setFinal(String name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setFinal'");
+        for (NFAState state : states) {
+            if (state.getName().equals(name)) {
+                return finalStates.add(state);
+            }
+        }
+        return false;
     }
 
     @Override
     public boolean setStart(String name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setStart'");
+        for (NFAState state : states) {
+            if (state.getName().equals(name)) {
+                startState = name;
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public void addSigma(char symbol) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addSigma'");
+        for (Character alnum : sigma) {
+            if (alnum.equals(symbol)) {
+                return;
+            }
+        }
+        sigma.add(symbol);
     }
 
     @Override
     public boolean accepts(String s) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'accepts'");
+        if (startState == null) return false;
+        NFAState currentState = getState(startState);
+
+        for (int i = 0; i < s.length(); i++) {
+            char symbol = s.charAt(i);
+            if (!sigma.contains(symbol)) return false;
+            NFAState nextState = currentState.getToState(symbol);
+            if (nextState == null) return false;
+            currentState = nextState;
+        }
+        return finalStates.contains(currentState);
     }
 
     @Override
@@ -51,20 +93,35 @@ public class NFA implements NFAInterface{
 
     @Override
     public State getState(String name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getState'");
+        for (NFAState state : states) {
+            if (state.getName().equals(name)) {
+                return state;
+            }
+        }
+        for (NFAState state : finalStates) {
+            if (state.getName().equals(name)) {
+                return state;
+            }
+        }
+        return null;
     }
 
     @Override
     public boolean isFinal(String name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isFinal'");
+        for (NFAState state : finalStates) {
+            if (state.getName().equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public boolean isStart(String name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isStart'");
+        if (name.equals(startState)) {
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -87,8 +144,18 @@ public class NFA implements NFAInterface{
 
     @Override
     public boolean addTransition(String fromState, Set<String> toStates, char onSymb) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addTransition'");
+        NFAState from = getState(fromState);
+        NFAState to = getState(toState);
+
+        if (from == null || to == null || !sigma.contains(onSymb)) {
+            return false;
+        }
+        for (NFAState currentState : states) {
+            if (currentState == from) {
+                currentState.toState(onSymb, to);
+            }
+        }
+        return true;
     }
 
     @Override
