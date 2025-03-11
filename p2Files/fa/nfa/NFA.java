@@ -1,5 +1,8 @@
 package fa.nfa;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import fa.State;
@@ -13,9 +16,9 @@ import fa.State;
  */
 public class NFA implements NFAInterface{
     LinkedHashSet<Character> sigma;
-    LinkedHashSet<DFAState> states;
+    LinkedHashSet<NFAState> states;
     String startState;
-    LinkedHashSet<DFAState> finalStates;
+    LinkedHashSet<NFAState> finalStates;
 
     /**
     *Constructor
@@ -36,7 +39,7 @@ public class NFA implements NFAInterface{
         }
 
 
-        return states.add(new DFAState(name));
+        return states.add(new NFAState(name));
     }
 
     @Override
@@ -87,8 +90,7 @@ public class NFA implements NFAInterface{
 
     @Override
     public Set<Character> getSigma() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getSigma'");
+        return sigma;
     }
 
     @Override
@@ -162,6 +164,52 @@ public class NFA implements NFAInterface{
     public boolean isDFA() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'isDFA'");
+    }
+
+    /*
+    * ToString method that displays the results of the 6-tuple
+    * in a format taht supports the test.
+    */
+    @Override
+    public String toString(){
+        /*NEEDS THE ADDITIONAL COMPONENT*/
+        StringBuilder sigma_vals = new StringBuilder();
+        StringBuilder state_vals = new StringBuilder();
+        StringBuilder final_state_vals = new StringBuilder();
+        StringBuilder delta_vals = new StringBuilder();
+
+        for (char value : sigma) {
+            sigma_vals.append(value).append(" ");
+        }
+        for (NFAState value : states) {
+            state_vals.append(value.getName());
+        }
+        for (NFAState value : finalStates) {
+            final_state_vals.append(value.getName()).append(" ");
+        }
+
+        List<Character> inputSymbols = new ArrayList<>(sigma);
+
+        delta_vals.append("\t");
+        for (char symbol : inputSymbols) {
+            delta_vals.append(symbol).append("\t");
+        }
+        delta_vals.append("\n");
+
+        for (NFAState state : states) {
+            delta_vals.append(state.getName()).append("\t");
+            for (char symbol : inputSymbols) {
+                NFAState nextState = state.getToState(symbol);
+                delta_vals.append((nextState != null ? nextState.getName() : "-")).append("\t");
+            }
+            delta_vals.append("\n");
+        }
+
+        return "Q={" + state_vals + "}\n" +
+                "Sigma = {" + sigma_vals.toString().trim() + "}\n" +
+                "delta =\n" + delta_vals.toString() +
+                "q0 = " + startState + "\n" +
+                "F = {" + final_state_vals.toString().trim() + "}\n";
     }
 
     
