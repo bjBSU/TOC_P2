@@ -1,6 +1,7 @@
 package fa.nfa;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -94,14 +95,14 @@ public class NFA implements NFAInterface{
     }
 
     @Override
-    public State getState(String name) {
-        for (NFAState state : states) {
-            if (state.getName().equals(name)) {
-                return state;
+    public NFAState getState(String toStates) {
+            for (NFAState state : states) {
+                if (state.getName().equals(toStates)) {
+                    return state;
+                }
             }
-        }
-        for (NFAState state : finalStates) {
-            if (state.getName().equals(name)) {
+            for (NFAState state : finalStates) {
+                if (state.getName().equals(toStates)) {
                 return state;
             }
         }
@@ -127,9 +128,9 @@ public class NFA implements NFAInterface{
     }
 
     @Override
+    //come back to this
     public Set<NFAState> getToState(NFAState from, char onSymb) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getToState'");
+        return from.getTransitions(onSymb);
     }
 
     @Override
@@ -147,9 +148,14 @@ public class NFA implements NFAInterface{
     @Override
     public boolean addTransition(String fromState, Set<String> toStates, char onSymb) {
         NFAState from = getState(fromState);
-        NFAState to = getState(toState);
 
-        if (from == null || to == null || !sigma.contains(onSymb)) {
+        List<NFAState> toStateList = new ArrayList<>();
+        for (String state: toStates){
+            NFAState to = getState(state);
+            toStateList.add(to);
+        }
+
+        if (from == null || toStateList == null || !sigma.contains(onSymb)) {
             return false;
         }
         for (NFAState currentState : states) {

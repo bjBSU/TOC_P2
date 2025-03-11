@@ -32,6 +32,7 @@ public class NFAState extends State {
         isStart = false;
     }
 
+
     /**
      * Adds a transition on the given symbol to the target state
      * @param symbol The symbol triggering the transition
