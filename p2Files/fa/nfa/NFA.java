@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 
 import fa.State;
 
@@ -15,22 +16,22 @@ import fa.State;
  * 
  * @author Ashley Day & Brooke Matthews
  */
-public class NFA implements NFAInterface{
+public class NFA implements NFAInterface {
     LinkedHashSet<Character> sigma;
     LinkedHashSet<NFAState> states;
-    String startState;
+    NFAState startState;
     LinkedHashSet<NFAState> finalStates;
 
     /**
-    *Constructor
-    */
+     * Constructor
+     */
     public NFA() {
         sigma = new LinkedHashSet<>();
         states = new LinkedHashSet<>();
-        startState = "";
+        startState = null;
         finalStates = new LinkedHashSet<>();
     }
-    
+
     @Override
     public boolean addState(String name) {
         for (NFAState state : states) {
@@ -39,7 +40,6 @@ public class NFA implements NFAInterface{
             }
         }
 
-
         return states.add(new NFAState(name));
     }
 
@@ -47,6 +47,7 @@ public class NFA implements NFAInterface{
     public boolean setFinal(String name) {
         for (NFAState state : states) {
             if (state.getName().equals(name)) {
+                state.setFinal(true);
                 return finalStates.add(state);
             }
         }
@@ -55,9 +56,13 @@ public class NFA implements NFAInterface{
 
     @Override
     public boolean setStart(String name) {
+        if (startState != null) { // Change to use NFAState class to handle
+            startState.setStart(false);
+        }
         for (NFAState state : states) {
             if (state.getName().equals(name)) {
-                startState = name;
+                startState = state;
+                state.setStart(true);
                 return true;
             }
         }
@@ -71,22 +76,54 @@ public class NFA implements NFAInterface{
                 return;
             }
         }
-        sigma.add(symbol);
+
+        if (symbol != 'e')
+            sigma.add(symbol); // Reserve e for epsilon
     }
+
+    // @Override
+    // public boolean accepts(String s) {
+    // if (startState == null) return false;
+    // NFAState currentState = getState(startState);
+
+    // for (int i = 0; i < s.length(); i++) {
+    // char symbol = s.charAt(i);
+    // if (!sigma.contains(symbol)) return false;
+    // NFAState nextState = currentState.getToState(symbol);
+    // if (nextState == null) return false;
+    // currentState = nextState;
+    // }
+    // return finalStates.contains(currentState);
+    // } Im pretty sure this implementation is closer to how a DFA should be (single
+    // state at a time) not an NFA unless I am reading wrong
 
     @Override
     public boolean accepts(String s) {
-        if (startState == null) return false;
-        NFAState currentState = getState(startState);
+        if (startState == null)
+            return false;
 
-        for (int i = 0; i < s.length(); i++) {
-            char symbol = s.charAt(i);
-            if (!sigma.contains(symbol)) return false;
-            NFAState nextState = currentState.getToState(symbol);
-            if (nextState == null) return false;
-            currentState = nextState;
+        Set<NFAState> currentStates = eClosure(startState);
+
+        for (char symbol : s.toCharArray()) {
+            if (!sigma.contains(symbol))
+                return false; // String check
+            Set<NFAState> nextStates = new HashSet<>();
+
+            for (NFAState state : currentStates) { // Get all transitions
+                nextStates.addAll(state.getTransitions(symbol));
+            }
+
+            currentStates.clear();
+            for (NFAState state : nextStates) { // Refill for next character check
+                currentStates.addAll(eClosure(state));
+            }
         }
-        return finalStates.contains(currentState);
+
+        for (NFAState state : currentStates) {
+            if (finalStates.contains(state))
+                return true; // Check if ended in accept
+        }
+        return false;
     }
 
     @Override
@@ -96,13 +133,13 @@ public class NFA implements NFAInterface{
 
     @Override
     public NFAState getState(String toStates) {
-            for (NFAState state : states) {
-                if (state.getName().equals(toStates)) {
-                    return state;
-                }
+        for (NFAState state : states) {
+            if (state.getName().equals(toStates)) {
+                return state;
             }
-            for (NFAState state : finalStates) {
-                if (state.getName().equals(toStates)) {
+        }
+        for (NFAState state : finalStates) {
+            if (state.getName().equals(toStates)) {
                 return state;
             }
         }
@@ -121,46 +158,102 @@ public class NFA implements NFAInterface{
 
     @Override
     public boolean isStart(String name) {
-        if (name.equals(startState)) {
+        if (name.equals(startState.getName())) {
             return true;
         }
         return false;
     }
 
     @Override
-    //come back to this
+    // come back to this
     public Set<NFAState> getToState(NFAState from, char onSymb) {
         return from.getTransitions(onSymb);
     }
 
     @Override
     public Set<NFAState> eClosure(NFAState s) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'eClosure'");
+        Set<NFAState> closure = new HashSet<>();
+        Stack<NFAState> stack = new Stack<>();
+
+        stack.push(s);
+        closure.add(s);
+
+        while (!stack.isEmpty()) {
+            NFAState state = stack.pop();
+
+            for (NFAState nextState : state.getTransitions('e')) { // 'e' represents epsilon, for all transitions on e
+                                                                   // add to stack and hashset and continue path
+                if (!closure.contains(nextState)) {
+                    closure.add(nextState);
+                    stack.push(nextState);
+                }
+            }
+        }
+
+        return closure;
     }
 
     @Override
     public int maxCopies(String s) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'maxCopies'");
+        if (startState == null)
+            return 0;
+
+        Set<NFAState> currentStates = eClosure(startState); // Set up like accept but check if e closure of start or any
+                                                            // version of current states is bigger
+        int maxCount = currentStates.size();
+
+        for (char symbol : s.toCharArray()) {
+            if (!sigma.contains(symbol))
+                return 0;
+            Set<NFAState> nextStates = new HashSet<>();
+
+            for (NFAState state : currentStates) {
+                nextStates.addAll(state.getTransitions(symbol));
+            }
+
+            currentStates.clear();
+            for (NFAState state : nextStates) {
+                currentStates.addAll(eClosure(state));
+            }
+
+            maxCount = Math.max(maxCount, currentStates.size());
+        }
+        return maxCount;
     }
+
+    // @Override
+    // public boolean addTransition(String fromState, Set<String> toStates, char
+    // onSymb) {
+    // NFAState from = getState(fromState);
+
+    // List<NFAState> toStateList = new ArrayList<>();
+    // for (String state : toStates) {
+    // NFAState to = getState(state);
+    // toStateList.add(to);
+    // }
+
+    // if (from == null || toStateList == null || !sigma.contains(onSymb)) {
+    // return false;
+    // }
+    // for (NFAState currentState : states) {
+    // if (currentState == from) {
+    // currentState.toState(onSymb, to);
+    // }
+    // }
+    // return true;
+    // }
 
     @Override
     public boolean addTransition(String fromState, Set<String> toStates, char onSymb) {
         NFAState from = getState(fromState);
-
-        List<NFAState> toStateList = new ArrayList<>();
-        for (String state: toStates){
-            NFAState to = getState(state);
-            toStateList.add(to);
+        if (from == null || !sigma.contains(onSymb)) {
+            return false; // Check from state exists and the symbol is valid
         }
 
-        if (from == null || toStateList == null || !sigma.contains(onSymb)) {
-            return false;
-        }
-        for (NFAState currentState : states) {
-            if (currentState == from) {
-                currentState.toState(onSymb, to);
+        for (String stateName : toStates) {
+            NFAState to = getState(stateName);
+            if (to != null) { // Don't add null states
+                from.addTransition(onSymb, to);
             }
         }
         return true;
@@ -168,17 +261,24 @@ public class NFA implements NFAInterface{
 
     @Override
     public boolean isDFA() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isDFA'");
+        for (NFAState state : states) {
+            for (char symbol : sigma) {
+                if (state.getTransitions(symbol).size() > 1) { // Check if transitions on symbol ever more than 1
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /*
-    * ToString method that displays the results of the 6-tuple
-    * in a format taht supports the test.
-    */
+     * ToString method that displays the results of the 6-tuple
+     * in a format that supports the test.
+     * THIS NEEDS TO BE CHANGED TO WORK FOR A NFA AS OF NOW IS NOT COMPLETE
+     */
     @Override
-    public String toString(){
-        /*NEEDS THE ADDITIONAL COMPONENT*/
+    public String toString() {
+        /* NEEDS THE ADDITIONAL COMPONENT */
         StringBuilder sigma_vals = new StringBuilder();
         StringBuilder state_vals = new StringBuilder();
         StringBuilder final_state_vals = new StringBuilder();
@@ -218,6 +318,4 @@ public class NFA implements NFAInterface{
                 "F = {" + final_state_vals.toString().trim() + "}\n";
     }
 
-    
 }
-
