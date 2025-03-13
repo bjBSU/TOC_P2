@@ -28,6 +28,7 @@ public class NFA implements NFAInterface {
      */
     public NFA() {
         sigma = new LinkedHashSet<>();
+        sigma.add('e');
         states = new LinkedHashSet<>();
         startState = null;
         finalStates = new LinkedHashSet<>();
@@ -250,13 +251,19 @@ public class NFA implements NFAInterface {
         if (from == null || !sigma.contains(onSymb)) {
             return false; // Check from state exists and the symbol is valid
         }
-
+        
         for (String stateName : toStates) {
             NFAState to = getState(stateName);
-            if (to != null) { // Don't add null states
-                from.addTransition(onSymb, to);
+            if (to == null) { // If any toState is invalid, return false
+                return false;
             }
         }
+    
+        for (String stateName : toStates) {// If all states are valid, add the transitions
+            NFAState to = getState(stateName);
+            from.addTransition(onSymb, to);
+        }
+
         return true;
     }
 
@@ -275,7 +282,6 @@ public class NFA implements NFAInterface {
     /*
      * ToString method that displays the results of the 6-tuple
      * in a format that supports the test.
-     * THIS NEEDS TO BE CHANGED TO WORK FOR A NFA AS OF NOW IS NOT COMPLETE
      */
     @Override
     public String toString() {
