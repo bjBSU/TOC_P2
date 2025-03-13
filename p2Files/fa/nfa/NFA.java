@@ -280,6 +280,9 @@ public class NFA implements NFAInterface {
     public boolean isDFA() {
         for (NFAState state : states) {
             for (char symbol : sigma) {
+                if (symbol == 'e') { // DFA cannot have epsilon transitions
+                    return false;
+                }
                 if (state.getTransitions(symbol).size() > 1) { // Check if transitions on symbol ever more than 1
                     return false;
                 }
