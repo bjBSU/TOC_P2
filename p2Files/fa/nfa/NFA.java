@@ -6,8 +6,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
-import fa.State;
+//import fa.State;
 
 /**
  * This class represents a general NFA. It implements the
@@ -305,8 +306,18 @@ public class NFA implements NFAInterface {
         for (NFAState state : states) {
             delta_vals.append(state.getName()).append("\t");
             for (char symbol : inputSymbols) {
-                NFAState nextState = state.getToState(symbol);
-                delta_vals.append((nextState != null ? nextState.getName() : "-")).append("\t");
+                HashSet<NFAState> nextState = state.getTransitions(symbol);
+                if(nextState != null && !nextState.isEmpty()){
+                    StringBuilder stateNames = new StringBuilder();
+                    for(NFAState nextStates: nextState){
+                        if(stateNames.length() > 0){
+                            stateNames.append(",");
+                        }
+                        stateNames.append(nextStates.getName());
+                    }
+                    delta_vals.append(stateNames);
+                }
+                
             }
             delta_vals.append("\n");
         }

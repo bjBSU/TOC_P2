@@ -104,54 +104,7 @@ public class NFAState extends State {
     @Override
     public String getName(){
         return super.getName();
-    }
-
-    // /*
-    // * ToString method that displays the results of the 6-tuple
-    // * in a format taht supports the test.
-    // */
-    // @Override
-    // public String toString(){
-    //     /*NEEDS THE ADDITIONAL COMPONENT*/
-    //     StringBuilder sigma_vals = new StringBuilder();
-    //     StringBuilder state_vals = new StringBuilder();
-    //     StringBuilder final_state_vals = new StringBuilder();
-    //     StringBuilder delta_vals = new StringBuilder();
-
-    //     for (char value : sigma) {
-    //         sigma_vals.append(value).append(" ");
-    //     }
-    //     for (DFAState value : states) {
-    //         state_vals.append(value.getName());
-    //     }
-    //     for (DFAState value : finalStates) {
-    //         final_state_vals.append(value.getName()).append(" ");
-    //     }
-
-    //     List<Character> inputSymbols = new ArrayList<>(sigma);
-
-    //     delta_vals.append("\t");
-    //     for (char symbol : inputSymbols) {
-    //         delta_vals.append(symbol).append("\t");
-    //     }
-    //     delta_vals.append("\n");
-
-    //     for (DFAState state : states) {
-    //         delta_vals.append(state.getName()).append("\t");
-    //         for (char symbol : inputSymbols) {
-    //             DFAState nextState = state.getToState(symbol);
-    //             delta_vals.append((nextState != null ? nextState.getName() : "-")).append("\t");
-    //         }
-    //         delta_vals.append("\n");
-    //     }
-
-    //     return "Q={" + state_vals + "}\n" +
-    //             "Sigma = {" + sigma_vals.toString().trim() + "}\n" +
-    //             "delta =\n" + delta_vals.toString() +
-    //             "q0 = " + startState + "\n" +
-    //             "F = {" + final_state_vals.toString().trim() + "}\n";
-    // }
-    
+    }  
 
     
 }
