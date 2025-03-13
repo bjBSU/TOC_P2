@@ -58,17 +58,26 @@ public class NFA implements NFAInterface {
 
     @Override
     public boolean setStart(String name) {
+        NFAState temp = null;
+        for (NFAState state : states) {
+            if (state.getName().equals(name)) {
+                temp = state;
+            }
+        }
+
+        if (temp == null) {
+            return false;
+        }
+        
+
         if (startState != null) { // Change to use NFAState class to handle
             startState.setStart(false);
         }
-        for (NFAState state : states) {
-            if (state.getName().equals(name)) {
-                startState = state;
-                state.setStart(true);
-                return true;
-            }
-        }
-        return false;
+
+        startState = temp;
+        temp.setStart(true);
+        return true;
+
     }
 
     @Override
@@ -251,14 +260,14 @@ public class NFA implements NFAInterface {
         if (from == null || !sigma.contains(onSymb)) {
             return false; // Check from state exists and the symbol is valid
         }
-        
+
         for (String stateName : toStates) {
             NFAState to = getState(stateName);
             if (to == null) { // If any toState is invalid, return false
                 return false;
             }
         }
-    
+
         for (String stateName : toStates) {// If all states are valid, add the transitions
             NFAState to = getState(stateName);
             from.addTransition(onSymb, to);
@@ -313,17 +322,17 @@ public class NFA implements NFAInterface {
             delta_vals.append(state.getName()).append("\t");
             for (char symbol : inputSymbols) {
                 HashSet<NFAState> nextState = state.getTransitions(symbol);
-                if(nextState != null && !nextState.isEmpty()){
+                if (nextState != null && !nextState.isEmpty()) {
                     StringBuilder stateNames = new StringBuilder();
-                    for(NFAState nextStates: nextState){
-                        if(stateNames.length() > 0){
+                    for (NFAState nextStates : nextState) {
+                        if (stateNames.length() > 0) {
                             stateNames.append(",");
                         }
                         stateNames.append(nextStates.getName());
                     }
                     delta_vals.append(stateNames);
                 }
-                
+
             }
             delta_vals.append("\n");
         }
