@@ -189,7 +189,7 @@ public class NFA implements NFAInterface {
 
         for (char symbol : s.toCharArray()) {
             if (!sigma.contains(symbol))
-                return 0;
+                return maxCount;
             Set<NFAState> nextStates = new HashSet<>();
 
             for (NFAState state : currentStates) {
