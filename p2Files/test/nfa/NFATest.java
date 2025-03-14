@@ -385,7 +385,7 @@ public class NFATest {
 		assertEquals(nfa.maxCopies("aaabac"), 2);
 		assertEquals(nfa.maxCopies("c"), 2);
 		assertEquals(nfa.maxCopies("abacbac"), 2);
-		assertEquals(nfa.maxCopies("23"), 2);
+		assertEquals(nfa.maxCopies("23"), 1); // dies after q0 and q0 has no epsilon transitions so 1
 		System.out.println("nfa1 maxCopies done");
 	}
 
