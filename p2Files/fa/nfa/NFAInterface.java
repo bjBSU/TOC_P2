@@ -1,10 +1,6 @@
 package fa.nfa;
-
-
 import java.util.Set;
-
 import fa.FAInterface;
-
 
 public interface NFAInterface extends FAInterface {
 	

@@ -1,8 +1,6 @@
 package fa.nfa;
-
 import java.util.HashMap;
 import java.util.HashSet;
-
 import fa.State;
 
 /**
@@ -31,7 +29,6 @@ public class NFAState extends State {
         isFinal = false;
         isStart = false;
     }
-
 
     /**
      * Adds a transition on the given symbol to the target state
@@ -105,7 +102,5 @@ public class NFAState extends State {
     public String getName(){
         return super.getName();
     }  
-
-    
 }
 

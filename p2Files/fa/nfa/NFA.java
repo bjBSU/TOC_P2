@@ -64,12 +64,10 @@ public class NFA implements NFAInterface {
                 temp = state;
             }
         }
-
         if (temp == null) {
             return false;
         }
         
-
         if (startState != null) { // Change to use NFAState class to handle
             startState.setStart(false);
         }
@@ -77,7 +75,6 @@ public class NFA implements NFAInterface {
         startState = temp;
         temp.setStart(true);
         return true;
-
     }
 
     @Override
@@ -87,26 +84,9 @@ public class NFA implements NFAInterface {
                 return;
             }
         }
-
         if (symbol != 'e')
             sigma.add(symbol); // Reserve e for epsilon
     }
-
-    // @Override
-    // public boolean accepts(String s) {
-    // if (startState == null) return false;
-    // NFAState currentState = getState(startState);
-
-    // for (int i = 0; i < s.length(); i++) {
-    // char symbol = s.charAt(i);
-    // if (!sigma.contains(symbol)) return false;
-    // NFAState nextState = currentState.getToState(symbol);
-    // if (nextState == null) return false;
-    // currentState = nextState;
-    // }
-    // return finalStates.contains(currentState);
-    // } Im pretty sure this implementation is closer to how a DFA should be (single
-    // state at a time) not an NFA unless I am reading wrong
 
     @Override
     public boolean accepts(String s) {
@@ -123,13 +103,11 @@ public class NFA implements NFAInterface {
             for (NFAState state : currentStates) { // Get all transitions
                 nextStates.addAll(state.getTransitions(symbol));
             }
-
             currentStates.clear();
             for (NFAState state : nextStates) { // Refill for next character check
                 currentStates.addAll(eClosure(state));
             }
         }
-
         for (NFAState state : currentStates) {
             if (finalStates.contains(state))
                 return true; // Check if ended in accept
@@ -176,7 +154,6 @@ public class NFA implements NFAInterface {
     }
 
     @Override
-    // come back to this
     public Set<NFAState> getToState(NFAState from, char onSymb) {
         return from.getTransitions(onSymb);
     }
@@ -191,7 +168,6 @@ public class NFA implements NFAInterface {
 
         while (!stack.isEmpty()) {
             NFAState state = stack.pop();
-
             for (NFAState nextState : state.getTransitions('e')) { // 'e' represents epsilon, for all transitions on e
                                                                    // add to stack and hashset and continue path
                 if (!closure.contains(nextState)) {
@@ -200,7 +176,6 @@ public class NFA implements NFAInterface {
                 }
             }
         }
-
         return closure;
     }
 
@@ -208,7 +183,6 @@ public class NFA implements NFAInterface {
     public int maxCopies(String s) {
         if (startState == null)
             return 0;
-
         Set<NFAState> currentStates = eClosure(startState); // Set up like accept but check if e closure of start or any
                                                             // version of current states is bigger
         int maxCount = currentStates.size();
@@ -232,28 +206,6 @@ public class NFA implements NFAInterface {
         return maxCount;
     }
 
-    // @Override
-    // public boolean addTransition(String fromState, Set<String> toStates, char
-    // onSymb) {
-    // NFAState from = getState(fromState);
-
-    // List<NFAState> toStateList = new ArrayList<>();
-    // for (String state : toStates) {
-    // NFAState to = getState(state);
-    // toStateList.add(to);
-    // }
-
-    // if (from == null || toStateList == null || !sigma.contains(onSymb)) {
-    // return false;
-    // }
-    // for (NFAState currentState : states) {
-    // if (currentState == from) {
-    // currentState.toState(onSymb, to);
-    // }
-    // }
-    // return true;
-    // }
-
     @Override
     public boolean addTransition(String fromState, Set<String> toStates, char onSymb) {
         NFAState from = getState(fromState);
@@ -272,7 +224,6 @@ public class NFA implements NFAInterface {
             NFAState to = getState(stateName);
             from.addTransition(onSymb, to);
         }
-
         return true;
     }
 
@@ -335,16 +286,13 @@ public class NFA implements NFAInterface {
                     }
                     delta_vals.append(stateNames);
                 }
-
             }
             delta_vals.append("\n");
         }
-
         return "Q={" + state_vals + "}\n" +
                 "Sigma = {" + sigma_vals.toString().trim() + "}\n" +
                 "delta =\n" + delta_vals.toString() +
                 "q0 = " + startState + "\n" +
                 "F = {" + final_state_vals.toString().trim() + "}\n";
     }
-
 }
